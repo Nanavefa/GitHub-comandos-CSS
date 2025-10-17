@@ -1,0 +1,174 @@
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Overwatch — Unidad 2</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Proyecto: Overwatch — Unidad 2</h1>
+      <p class="lead">HTML5 + CSS (selectores) + JavaScript — incluye imágenes, video y audio.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="grid" aria-label="Contenido principal">
+
+      <!-- GALERÍA -->
+      <section class="card roles" aria-labelledby="roles-title">
+        <div style="grid-column:1/span12"><h2 id="roles-title">Roles en Overwatch</h2></div>
+
+        <article class="role card" tabindex="0">
+          <img src="overwatch.png" alt="Logo Overwatch" />
+          <h3>Overwatch</h3>
+          <p>Visión general del juego, historia y mecánicas esenciales.</p>
+        </article>
+
+        <article class="role card" tabindex="0">
+          <img src="supports.png" alt="Supports — héroes de apoyo" />
+          <h3>Supports</h3>
+          <p>Héroes encargados de curar, proteger y potenciar al equipo.</p>
+        </article>
+
+        <article class="role card" tabindex="0">
+          <img src="dps.png" alt="DPS — daño" />
+          <h3>DPS</h3>
+          <p>Encargados de infligir daño, flanquear y asegurar objetivos clave.</p>
+        </article>
+      </section>
+
+      <!-- VIDEO Y AUDIO -->
+      <section class="card media">
+        <div>
+          <h2>Video: Presentación</h2>
+          <div class="video-wrap">
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/RXXquywblqQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+
+          <h2 style="margin-top:1rem">Audio: Banda sonora</h2>
+          <audio controls src="overwatch-theme.mp3">Tu navegador no soporta la etiqueta audio.</audio>
+        </div>
+
+        <aside class="card aside-info">
+          <h3>Notas para entrega</h3>
+          <ul>
+            <li>Incluye las 3 imágenes con los nombres exactos.</li>
+            <li>Revisa accesibilidad (alt, tabindex, labels).</li>
+            <li>La actividad interactiva está abajo.</li>
+          </ul>
+        </aside>
+      </section>
+
+      <!-- QUIZ -->
+      <section id="quiz" class="card">
+        <h2>Evaluación interactiva</h2>
+        <div id="quiz-area">
+          <p class="question" id="question-text">Cargando pregunta...</p>
+          <div class="answers" id="answers"></div>
+
+          <div class="controls">
+            <button id="nextBtn">Siguiente</button>
+            <button id="restartBtn" style="display:none">Reiniciar</button>
+            <div id="progress">Pregunta <span id="current">0</span>/<span id="total">0</span></div>
+          </div>
+
+          <div id="result" style="display:none"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        q: '¿Cuál es el rol principal de los héroes "Support" en Overwatch?',
+        choices: ['Infligir daño a larga distancia','Curar y apoyar al equipo','Controlar el mapa con ultimates','Capturar objetivos solo'],
+        a: 1
+      },
+      {
+        q: '¿Cuál propiedad CSS controla el esquema de columnas en la grid?',
+        choices: ['grid-template-columns','display:flex','position:absolute','box-shadow'],
+        a: 0
+      },
+      {
+        q: '¿Cuál de los siguientes archivos debe existir para mostrar imágenes?',
+        choices: ['overwatch.jpg','supports.png','characters.gif','dps.bmp'],
+        a: 1
+      },
+      {
+        q: '¿Qué atributo permite el modo pantalla completa en el video?',
+        choices: ['allowfullscreen','openfullscreen','fullscreen=true','allowFullScreenMode'],
+        a: 0
+      }
+    ];
+
+    let current = 0, score = 0;
+    const total = questions.length;
+    const qText = document.getElementById('question-text');
+    const answers = document.getElementById('answers');
+    const currentSpan = document.getElementById('current');
+    const totalSpan = document.getElementById('total');
+    const nextBtn = document.getElementById('nextBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const resultDiv = document.getElementById('result');
+    totalSpan.textContent = total;
+
+    function showQuestion(i){
+      const item = questions[i];
+      qText.textContent = item.q;
+      answers.innerHTML = '';
+      item.choices.forEach((c, idx)=>{
+        const btn = document.createElement('button');
+        btn.textContent = c;
+        btn.dataset.index = idx;
+        btn.onclick = checkAnswer;
+        answers.appendChild(btn);
+      });
+      currentSpan.textContent = i+1;
+    }
+
+    function checkAnswer(e){
+      const chosen = Number(e.target.dataset.index);
+      const correct = questions[current].a;
+      [...answers.children].forEach(btn=>{
+        btn.disabled = true;
+        if(Number(btn.dataset.index) === correct) btn.classList.add('correct');
+        else if(Number(btn.dataset.index) === chosen) btn.classList.add('wrong');
+      });
+      if(chosen === correct) score++;
+      if(current === total - 1){
+        nextBtn.style.display = 'none';
+        restartBtn.style.display = 'inline-block';
+        showResult();
+      }
+    }
+
+    function nextQuestion(){
+      current++;
+      if(current < total) showQuestion(current);
+    }
+
+    function showResult(){
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `<strong>Puntuación: ${score}/${total}</strong>`;
+      if(score === total) resultDiv.innerHTML += '<p>¡Excelente!</p>';
+      else if(score >= total * 0.6) resultDiv.innerHTML += '<p>Buen trabajo.</p>';
+      else resultDiv.innerHTML += '<p>Necesitas repasar el tema.</p>';
+    }
+
+    function restart(){
+      current = 0; score = 0;
+      nextBtn.style.display = 'inline-block';
+      restartBtn.style.display = 'none';
+      resultDiv.style.display = 'none';
+      showQuestion(0);
+    }
+
+    nextBtn.onclick = nextQuestion;
+    restartBtn.onclick = restart;
+    showQuestion(0);
+  </script>
+</body>
+</html>
